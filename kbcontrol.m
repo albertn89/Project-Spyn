@@ -1,6 +1,4 @@
 global key
-%!!!! IMPORTANT. For each session, just run the following line once
-brick = ConnectBrick('BRAIN');
 %Initialize the keyboard key detection function in MATLAB
 InitKeyboard();
 
@@ -36,12 +34,12 @@ while 1
             brick.StopAllMotors();
          case 'w'
             disp('Right Arrow Pressed!');
-            brick.MoveMotor(1, 25 );
+            brick.MoveMotor('C', 25 );
             pause(5)
             brick.StopAllMotors();
           case 's'
             disp('Right Arrow Pressed!');
-            brick.MoveMotor(1, -25 );
+            brick.MoveMotor('C', -25 );
             pause(5)
             brick.StopAllMotors();
         % When 'q' is pressed, we jump out of the while loop and leave the
@@ -53,4 +51,3 @@ end
 
 %Close the keyboard key detection function in MATLAB
 CloseKeyboard();
-DisconnectBrick(brick);
