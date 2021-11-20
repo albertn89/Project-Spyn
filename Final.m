@@ -23,99 +23,135 @@ crane motor: C
 global key
 
 % Set Color Sensor connected to Port 3 to Color Code Mode
-start_distance = brick.UltrasonicDist(3); 
+%start_distance = brick.UltrasonicDist(3); 
 brick.SetColorMode(2, 2);
+%brick.ResetMotorAngle('AD');
+brick.GyroCalibrate(1);
+count = 0;
+
  
 while 1
-    brick.ResetMotorAngle('A');
-    brick.ResetMotorAngle('D');
+    
+    %brick.ResetMotorAngle('D');
     
     % Moving the motor forward
-    brick.MoveMotor('A', 86);
-   brick.MoveMotor('D', 88);
-   %brick.MoveMotorAngleAbs('AD', 50, 360); 
-   pause(0.5);
+    brick.MoveMotor('A', 98);
+    brick.MoveMotor('D', 100);
+    %pause(0.5);
     
     % Reading sensor values
-    dist = brick.UltrasonicDist(1);
     col = brick.ColorCode(2);
+    dist = brick.UltrasonicDist(3);
     touch = brick.TouchPressed(4);
     
+    % Red
     if col == 5
         disp('Red');
         brick.StopMotor('AD', 'Brake');
         pause(2);
-        brick.MoveMotor('A', 46);
-        brick.MoveMotor('D', 50);
+        brick.MoveMotor('A', 98);
+        brick.MoveMotor('D', 100);
         pause(0.5);
         
+    % Blue or Yellow
     elseif col == 2 || col == 4
+        if col == 2
+            disp('Blue');
+        elseif col == 4
+            disp('Yellow');
+        end
+        
         disp('Blue/Yellow');
         brick.StopMotor('AD', 'Brake');
-        pause(1);
-        run('kbcontrol');
-        brick.MoveMotor('A', 46);
-        brick.MoveMotor('D', 50);
+        pause(0.5);
+        run('kbcontrol');   % Open remote control
+        brick.MoveMotor('A', 98);
+        brick.MoveMotor('D', 100);
+        
+    % Green on start
     elseif col == 3
+        pause(0.5);
         disp('Green');
         brick.StopMotor('AD', 'Brake');
-        pause(2);
-        brick.MoveMotor('A', 46);
-        brick.MoveMotor('D', 50);
-        pause(1);     
+        pause(1);
+        brick.MoveMotor('A', 98);
+        brick.MoveMotor('D', 100);
+        pause(3);
+        count = count + 1;
     end
     
 
     
     % Navigation System
-   
+    % No wall is present
     if dist > 30 
-        pause(0.5);
+        % Get past the wall
+        pause(0.1);
         brick.StopMotor('AD', 'Brake');
-        brick.MoveMotor('A', 20);
-        pause(2.3); %turning time
-         brick.StopMotor('A', 'Brake');
-        brick.MoveMotor('A', 46); 
-        brick.MoveMotor('D', 50);
+        %pause(1);
+        
+        % Turn right
+        brick.MoveMotor('A', -98);
+        brick.MoveMotor('D', 100);
+        pause(1.11);
+        brick.StopMotor('AD', 'Brake');
+        %pause(1);
+        
+        % Going straight
+        brick.MoveMotor('A', 98);
+        brick.MoveMotor('D', 100);
         pause(2);
     end
+
     
+    % If touch is true
     if touch
-        pause(0.3);
+        pause(0.1);
         disp('Touched');
+        brick.StopMotor('AD', 'Brake'); % Stop motor
+        %pause(1);
+        
+        % Reverse
+        brick.MoveMotor('A', -98);
+        brick.MoveMotor('D', -100);
+        pause(1);
         brick.StopMotor('AD', 'Brake');
-        brick.MoveMotor('A', -40);
-        brick.MoveMotor('D', -42);
-        pause(2);
-        brick.StopMotor('AD', 'Brake');
-        brick.MoveMotor('A', 60)
-        brick.MoveMotor('D', -62);
-        pause(2);
-        brick.StopMotor('AD', 'Brake');
-        brick.MoveMotor('A', 46);
-        brick.MoveMotor('D', 50);
-        brick.StopMotor('AD', 'Brake');
-        pause(2);
-    
+        %pause(1);
+
+        % If touch == 1 and there is wall, turn left
         if dist < 30
-            brick.MoveMotor('A', 60)
-            brick.MoveMotor('D', -62);
-            pause(1.6);
+            % Turn left
+            brick.MoveMotor('A', 98);
+            brick.MoveMotor('D', -100);
+            pause(1.11);
             brick.StopMotor('AD', 'Brake');
-            brick.MoveMotor('A', 46);
-            brick.MoveMotor('D', 50);
+            %pause(1);
+            brick.MoveMotor('A', 98);
+            brick.MoveMotor('D', 100);
             pause(2);
             
+        % else (no wall), turn right
         else
-            brick.MoveMotor('A', 60)
-            brick.MoveMotor('D', -62);
-            pause(2);
+            brick.MoveMotor('A', -98);
+            brick.MoveMotor('D', 100);
+            pause(1.11);
             brick.StopMotor('D','Brake');
-            brick.MoveMotor('A', 46);
-            brick.MoveMotor('D', 50);
+            %pause(1);
+            brick.MoveMotor('A', 98);
+            brick.MoveMotor('D', 100);
+            pause(2);
         end
            
     end
-        
+    
+    % Green on finish
+    if col == 3 && count == 1
+        pause(0.5);
+        disp('Green');
+        brick.StopMotor('AD', 'Brake');
+        %run('kbcontrol');
+        break;
+    end
+    
 end
 
